@@ -6,8 +6,10 @@ const encryption = async (password) => {
   return encryptedPassword;
 };
 
-const compare = (encryptedPassword) => {
-  return;
+const compare = (password, encryptedPassword) => {
+  console.log(password);
+  console.log(encryptedPassword);
+  return bcrypt.compare(String(password), encryptedPassword);
 };
 
 const cryptation = {encryption, compare};

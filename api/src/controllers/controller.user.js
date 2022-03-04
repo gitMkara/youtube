@@ -19,7 +19,7 @@ const registerUser = async (req, res) => {
         return;
       })
       .catch((err) => {
-        console.log('User was not created.⛔ ');
+        console.log('User was not created.⛔ ' + err.message);
         res.status(400).json(err);
         return;
       });
@@ -38,7 +38,7 @@ const deleteUser = async (req, res) => {
         return;
       })
       .catch((err) => {
-        console.log('User was not deleted.⛔');
+        console.log('User was not deleted.⛔' + err.message);
         res.status(400).json(err);
       });
   } catch (error) {
@@ -57,7 +57,7 @@ const getAllUsers = async (req, res) => {
         return;
       })
       .catch((err) => {
-        console.log('User List was not sent.⛔');
+        console.log('User List was not sent.⛔' + err.message);
         res.status(400).json(err);
       });
   } catch (error) {
@@ -82,7 +82,7 @@ const updateUser = async (req, res) => {
         return;
       })
       .catch((err) => {
-        console.log('User was not updated.⛔');
+        console.log('User was not updated.⛔' + err.message);
         res.status(400).json(err);
         return;
       });
