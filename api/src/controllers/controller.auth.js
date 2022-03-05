@@ -1,26 +1,30 @@
 const cryptation = require('../middlewares/middleware.bcrypt');
+const tokenHub = require('../middlewares/middleware.jwt');
 const User = require('../models/Model.User');
 
 const userLogin = async (req, res) => {
   try {
-    let isValid;
     if (req.body.username) {
       const userFromDB = await User.findOne({
         username: req.body.username,
       }).catch((err) => {
-        console.log('Invalid username. ⛔' + err.message);
-        res.status(401).json('Invalid username. ⛔');
+        console.log(err.message);
+        res.status(401).json('User not found. ⛔' + err.message);
       });
 
-      isValid = await cryptation.compare(
-        req.body.password,
-        userFromDB.password
-      );
-    }
-    if (isValid) {
-      res.status(200).json('User has been logged. ✅');
-    } else {
+      const isValidPassword = userFromDB
+        ? await cryptation.compare(req.body.password, userFromDB.password)
+        : false;
 
+      const accessToken = tokenHub.generateAccessToken(userFromDB.username);
+      const refreshToken = tokenHub.generateRefreshToken(userFromDB.username);
+
+      isValidPassword
+        ? res
+            .status(200)
+            .json({accessToken: accessToken, refreshToken: refreshToken})
+        : res.status(401).json('Invalid username or password. ⛔');
+    } else {
       res.status(401).json('Invalid username or password. ⛔');
     }
   } catch (error) {
@@ -28,4 +32,22 @@ const userLogin = async (req, res) => {
   }
 };
 
-module.exports = {userLogin};
+const userLogout = (req, res) => {
+  try {
+    tokenHub.refreshTokenStorage.length = 0;
+    console.log('User has been logouted. ✅');
+    res.status(200).json('User has been logouted. ✅');
+  } catch (error) {
+    res.status(404).json(error);
+  }
+};
+
+const refresh = (req, res) => {
+  try {
+    tokenHub.refreshNewTokens(req, res);
+  } catch (error) {
+    res.status(404).json(error);
+  }
+};
+
+module.exports = {userLogin, userLogout, refresh};
